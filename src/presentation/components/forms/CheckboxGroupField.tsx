@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { CheckboxFieldSchema } from '../../../domain/entities/schema/fields';
 import { useFormContext } from '../../forms/context/FormContext';
 import { formColors, formSpacing } from '../../theme/forms';
+import { FieldErrorText } from './FieldErrorText';
 import { FieldLabel } from './FieldLabel';
 
 interface CheckboxGroupFieldProps {
@@ -9,14 +10,23 @@ interface CheckboxGroupFieldProps {
 }
 
 export function CheckboxGroupField({ field }: CheckboxGroupFieldProps) {
-  const { values, setFieldValue } = useFormContext();
+  const {
+    values,
+    setFieldValue,
+    onFieldBlur,
+    shouldShowFieldError,
+    getFieldError,
+  } = useFormContext();
   const selected = (values[field.id] as string[] | undefined) ?? [];
+  const hasError = shouldShowFieldError(field.id);
+  const errorMessage = getFieldError(field.id);
 
   const toggle = (optionValue: string) => {
     const next = selected.includes(optionValue)
       ? selected.filter(v => v !== optionValue)
       : [...selected, optionValue];
     setFieldValue(field.id, next);
+    onFieldBlur(field.id);
   };
 
   return (
@@ -26,7 +36,7 @@ export function CheckboxGroupField({ field }: CheckboxGroupFieldProps) {
         required={field.required}
         helperText={field.helperText}
       />
-      <View style={styles.options}>
+      <View style={[styles.options, hasError && styles.optionsError]}>
         {field.options.map(option => {
           const isSelected = selected.includes(option.value);
           return (
@@ -45,6 +55,9 @@ export function CheckboxGroupField({ field }: CheckboxGroupFieldProps) {
           );
         })}
       </View>
+      {hasError && errorMessage ? (
+        <FieldErrorText message={errorMessage} />
+      ) : null}
     </>
   );
 }
@@ -52,6 +65,12 @@ export function CheckboxGroupField({ field }: CheckboxGroupFieldProps) {
 const styles = StyleSheet.create({
   options: {
     gap: formSpacing.sm,
+    borderRadius: 8,
+  },
+  optionsError: {
+    padding: formSpacing.xs,
+    borderWidth: 1,
+    borderColor: formColors.error,
   },
   option: {
     flexDirection: 'row',

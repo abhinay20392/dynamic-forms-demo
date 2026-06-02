@@ -9,3 +9,6 @@ export * from './repositories/schema-repository';
 export * from './repositories/submission-repository';
 export * from './services/file-cache-service';
 export * from './services/rule-evaluator';
+export * from './services/validation-engine';
+export * from './services/validation-messages';
+export * from './utils/value-utils';

@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { RadioFieldSchema } from '../../../domain/entities/schema/fields';
 import { useFormContext } from '../../forms/context/FormContext';
 import { formColors, formSpacing } from '../../theme/forms';
+import { FieldErrorText } from './FieldErrorText';
 import { FieldLabel } from './FieldLabel';
 
 interface RadioGroupFieldProps {
@@ -9,8 +10,21 @@ interface RadioGroupFieldProps {
 }
 
 export function RadioGroupField({ field }: RadioGroupFieldProps) {
-  const { values, setFieldValue } = useFormContext();
+  const {
+    values,
+    setFieldValue,
+    onFieldBlur,
+    shouldShowFieldError,
+    getFieldError,
+  } = useFormContext();
   const selected = (values[field.id] as string | undefined) ?? '';
+  const hasError = shouldShowFieldError(field.id);
+  const errorMessage = getFieldError(field.id);
+
+  const select = (optionValue: string) => {
+    setFieldValue(field.id, optionValue);
+    onFieldBlur(field.id);
+  };
 
   return (
     <>
@@ -19,14 +33,14 @@ export function RadioGroupField({ field }: RadioGroupFieldProps) {
         required={field.required}
         helperText={field.helperText}
       />
-      <View style={styles.options}>
+      <View style={[styles.options, hasError && styles.optionsError]}>
         {field.options.map(option => {
           const isSelected = selected === option.value;
           return (
             <Pressable
               key={option.value}
               style={[styles.option, isSelected && styles.optionSelected]}
-              onPress={() => setFieldValue(field.id, option.value)}
+              onPress={() => select(option.value)}
               accessibilityRole="radio"
               accessibilityState={{ selected: isSelected }}>
               <View
@@ -38,6 +52,9 @@ export function RadioGroupField({ field }: RadioGroupFieldProps) {
           );
         })}
       </View>
+      {hasError && errorMessage ? (
+        <FieldErrorText message={errorMessage} />
+      ) : null}
     </>
   );
 }
@@ -45,6 +62,12 @@ export function RadioGroupField({ field }: RadioGroupFieldProps) {
 const styles = StyleSheet.create({
   options: {
     gap: formSpacing.sm,
+    borderRadius: 8,
+  },
+  optionsError: {
+    padding: formSpacing.xs,
+    borderWidth: 1,
+    borderColor: formColors.error,
   },
   option: {
     flexDirection: 'row',

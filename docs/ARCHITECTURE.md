@@ -45,8 +45,9 @@ Dependencies point **inward**:
 │ (data)               │          │ (data, future)           │
 └──────────────────────┘          └──────────────────────────┘
 
-Future (Phase 3–5):
-  IRuleEvaluator, IFileCacheService → used by form engine / pickers
+Future (Phase 4–5):
+  IFileCacheService → used by file/image pickers
+  Visibility engine uses IRuleEvaluator (registered in container)
 ```
 
 ## Composition root
@@ -63,6 +64,7 @@ Do not construct repositories inside UI components.
 | Sample schemas | Done |
 | InMemorySchemaRepository | Done |
 | SubmissionRepository | Stub (Phase 6) |
-| Rule evaluator / validation / visibility engines | Phase 3–4 |
+| Rule evaluator + validation engine | Done (Phase 3) |
+| Visibility engine | Phase 4 |
 | File cache service | Phase 5 |
 | Presentation screens | Phase 2+ |

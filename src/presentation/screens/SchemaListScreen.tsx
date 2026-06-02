@@ -47,7 +47,7 @@ export function SchemaListScreen({
         <View style={styles.header}>
           <Text style={styles.title}>Dynamic Forms Demo</Text>
           <Text style={styles.subtitle}>
-            Phase 2 — Select a form to open
+            Select a form to open
           </Text>
         </View>
       }

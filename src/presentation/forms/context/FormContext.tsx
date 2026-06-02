@@ -9,6 +9,11 @@ export interface FormContextValue {
   values: FormValues;
   mode: FormMode;
   setFieldValue: (fieldId: string, value: FieldValue | undefined) => void;
+  onFieldBlur: (fieldId: string) => void;
+  shouldShowFieldError: (fieldId: string) => boolean;
+  getFieldError: (fieldId: string) => string | undefined;
+  shouldShowSectionError: (sectionId: string) => boolean;
+  getSectionError: (sectionId: string) => string | undefined;
 }
 
 const FormContext = createContext<FormContextValue | null>(null);
