@@ -1,14 +1,25 @@
-import { useEffect, useState } from 'react';
-import { SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { StatusBar, StyleSheet } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import type { FormSchema } from './src/domain';
 import { getAppContainer } from './src/infrastructure/di/app-container';
+import { DynamicFormScreen } from './src/presentation/screens/DynamicFormScreen';
+import { SchemaListScreen } from './src/presentation/screens/SchemaListScreen';
+import { formColors } from './src/presentation/theme/forms';
+
+type AppRoute =
+  | { name: 'list' }
+  | { name: 'form'; schema: FormSchema };
 
 function App() {
+  const [route, setRoute] = useState<AppRoute>({ name: 'list' });
   const [schemas, setSchemas] = useState<FormSchema[]>([]);
+  const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
+      setLoading(true);
       const result = await getAppContainer().schemaRepository.getAll();
       if (result.success) {
         setSchemas(result.data);
@@ -16,69 +27,42 @@ function App() {
       } else {
         setLoadError(result.error);
       }
+      setLoading(false);
     };
     load();
   }, []);
 
+  const openForm = useCallback((schema: FormSchema) => {
+    setRoute({ name: 'form', schema });
+  }, []);
+
+  const goBack = useCallback(() => {
+    setRoute({ name: 'list' });
+  }, []);
+
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      <Text style={styles.title}>Dynamic Forms Demo</Text>
-      <Text style={styles.subtitle}>Phase 1 — Architecture ready</Text>
-      <View style={styles.card}>
-        {loadError ? (
-          <Text style={styles.error}>{loadError}</Text>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.root} edges={['top', 'left', 'right']}>
+        <StatusBar barStyle="dark-content" />
+        {route.name === 'list' ? (
+          <SchemaListScreen
+            schemas={schemas}
+            loading={loading}
+            error={loadError}
+            onSelectSchema={openForm}
+          />
         ) : (
-          <>
-            <Text style={styles.label}>
-              Loaded schemas: {schemas.length}
-            </Text>
-            {schemas.map(schema => (
-              <Text key={schema.id} style={styles.schemaItem}>
-                • {schema.title} ({schema.sections.length} sections)
-              </Text>
-            ))}
-          </>
+          <DynamicFormScreen schema={route.schema} onBack={goBack} />
         )}
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    padding: 24,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 24,
-  },
-  card: {
-    padding: 16,
-    borderRadius: 8,
-    backgroundColor: '#f5f5f5',
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 8,
-  },
-  schemaItem: {
-    fontSize: 14,
-    color: '#333',
-    marginTop: 4,
-  },
-  error: {
-    color: '#c00',
-    fontSize: 14,
+    backgroundColor: formColors.background,
   },
 });
 

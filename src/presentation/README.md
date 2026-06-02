@@ -1,8 +1,14 @@
 # Presentation layer
 
-Screens, components, and view-models will live here starting in **Phase 2**.
+## Phase 2 (done)
+- `screens/SchemaListScreen` — pick a bundled schema
+- `screens/DynamicFormScreen` — full-screen dynamic form
+- `components/forms/*` — field registry (text, radio, checkbox)
+- `forms/hooks/useFormState` — centralized form values
+- `forms/context/FormContext` — field components read/write state
 
-Planned screens:
+## Upcoming
 - `FormListScreen` — submitted forms list (Phase 7)
 - `FormDetailsScreen` — submission details + edit entry (Phase 7)
-- `DynamicFormScreen` — JSON-driven create/edit form (Phase 2+)
+- Visibility engine wired into renderer (Phase 4)
+- File/image field components (Phase 5)
