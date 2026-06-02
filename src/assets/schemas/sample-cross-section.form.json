@@ -1,0 +1,137 @@
+{
+  "id": "sample-cross-section",
+  "title": "Employment & Documents",
+  "version": "1.0.0",
+  "description": "Cross-section visibility and dynamic validation with intersection (all).",
+  "hiddenValuePolicy": "clear",
+  "sections": [
+    {
+      "id": "employment",
+      "title": "Employment",
+      "order": 1,
+      "fields": [
+        {
+          "id": "employmentType",
+          "label": "Employment Type",
+          "type": "radio",
+          "order": 1,
+          "required": true,
+          "options": [
+            { "label": "Employed", "value": "employed" },
+            { "label": "Self Employed", "value": "self_employed" },
+            { "label": "Student", "value": "student" }
+          ]
+        },
+        {
+          "id": "country",
+          "label": "Country Code",
+          "type": "text",
+          "order": 2,
+          "placeholder": "e.g. IN, US",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "business",
+      "title": "Business Details",
+      "order": 2,
+      "visibility": {
+        "all": [
+          { "field": "employmentType", "op": "equals", "value": "self_employed" },
+          { "field": "country", "op": "equals", "value": "IN" }
+        ]
+      },
+      "fields": [
+        {
+          "id": "businessName",
+          "label": "Business Name",
+          "type": "text",
+          "order": 1,
+          "validation": [
+            {
+              "type": "required",
+              "message": "Business name is required for self-employed in India",
+              "when": {
+                "all": [
+                  { "field": "employmentType", "op": "equals", "value": "self_employed" },
+                  { "field": "country", "op": "equals", "value": "IN" }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "gstNumber",
+          "label": "GST Number",
+          "type": "text",
+          "order": 2,
+          "visibility": {
+            "all": [
+              { "field": "employmentType", "op": "equals", "value": "self_employed" },
+              { "field": "businessName", "op": "isNotEmpty" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "documents",
+      "title": "Documents",
+      "order": 3,
+      "visibility": {
+        "any": [
+          { "field": "employmentType", "op": "equals", "value": "employed" },
+          {
+            "all": [
+              { "field": "employmentType", "op": "equals", "value": "self_employed" },
+              { "field": "businessName", "op": "isNotEmpty" }
+            ]
+          }
+        ]
+      },
+      "validation": {
+        "all": [
+          { "field": "employmentType", "op": "notEquals", "value": "student" }
+        ]
+      },
+      "fields": [
+        {
+          "id": "resumeFile",
+          "label": "Resume (PDF)",
+          "type": "file",
+          "order": 1,
+          "allowedMimeTypes": ["application/pdf"],
+          "validation": [
+            { "type": "required", "message": "Resume is required" },
+            {
+              "type": "allowedMimeTypes",
+              "value": ["application/pdf"],
+              "message": "Only PDF allowed"
+            }
+          ]
+        },
+        {
+          "id": "profilePhoto",
+          "label": "Profile Photo",
+          "type": "image",
+          "order": 2,
+          "allowCamera": true,
+          "allowGallery": true,
+          "validation": [
+            {
+              "type": "required",
+              "message": "Photo required when employed",
+              "when": {
+                "all": [
+                  { "field": "employmentType", "op": "equals", "value": "employed" },
+                  { "field": "country", "op": "isNotEmpty" }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
