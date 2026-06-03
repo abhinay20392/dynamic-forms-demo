@@ -13,8 +13,12 @@
 - `forms/hooks/useFormValidation.ts` — on blur, on change (when touched), on submit
 - Field error UI + section error banner on submit
 
+## Phase 4 (done)
+- `domain/services/visibility-engine.ts` — section/field visibility from rules
+- `forms/hooks/useFormVisibility.ts` — live updates + `clear` hidden values
+- Validation skips hidden sections/fields
+
 ## Upcoming
 - `FormListScreen` — submitted forms list (Phase 7)
 - `FormDetailsScreen` — submission details + edit entry (Phase 7)
-- Visibility engine wired into renderer (Phase 4)
 - File/image field components (Phase 5)

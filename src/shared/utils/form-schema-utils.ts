@@ -55,3 +55,34 @@ export function buildInitialValues(
 export function getAllFields(schema: FormSchema): FieldSchema[] {
   return schema.sections.flatMap(section => section.fields);
 }
+
+export function getFieldById(
+  schema: FormSchema,
+  fieldId: string,
+): FieldSchema | undefined {
+  return getAllFields(schema).find(field => field.id === fieldId);
+}
+
+/** Applies `clear` policy: resets hidden fields to their default values. */
+export function applyHiddenValueClear(
+  schema: FormSchema,
+  values: FormValues,
+  hiddenFieldIds: ReadonlySet<string>,
+): FormValues {
+  const next = { ...values };
+  let changed = false;
+
+  for (const fieldId of hiddenFieldIds) {
+    const field = getFieldById(schema, fieldId);
+    if (!field) {
+      continue;
+    }
+    const defaultValue = getDefaultFieldValue(field);
+    if (next[fieldId] !== defaultValue) {
+      next[fieldId] = defaultValue;
+      changed = true;
+    }
+  }
+
+  return changed ? next : values;
+}

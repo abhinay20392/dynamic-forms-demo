@@ -8,6 +8,7 @@ import {
 } from '../../forms/context/FormContext';
 import { useFormState } from '../../forms/hooks/useFormState';
 import { useFormValidation } from '../../forms/hooks/useFormValidation';
+import { useFormVisibility } from '../../forms/hooks/useFormVisibility';
 import { formColors, formSpacing } from '../../theme/forms';
 import { SectionView } from './SectionView';
 
@@ -24,11 +25,18 @@ export function DynamicFormView({
   initialValues,
   onSubmitSuccess,
 }: DynamicFormViewProps) {
-  const { values, setFieldValue: setValue, reset } = useFormState(
+  const { values, setValues, reset } = useFormState(schema, initialValues);
+  const visibility = useFormVisibility(schema, values, setValues);
+  const validation = useFormValidation(
     schema,
-    initialValues,
+    values,
+    visibility.setFieldValue,
+    undefined,
+    {
+      visibleFieldIds: visibility.visibleFieldIds,
+      visibleSectionIds: visibility.visibleSectionIds,
+    },
   );
-  const validation = useFormValidation(schema, values, setValue);
   const sections = getSortedSections(schema);
 
   const onSubmit = () => {
@@ -58,6 +66,8 @@ export function DynamicFormView({
         getFieldError: validation.getFieldError,
         shouldShowSectionError: validation.shouldShowSectionError,
         getSectionError: validation.getSectionError,
+        isSectionVisible: visibility.isSectionVisible,
+        isFieldVisible: visibility.isFieldVisible,
       }}>
       <ScrollView
         style={styles.scroll}

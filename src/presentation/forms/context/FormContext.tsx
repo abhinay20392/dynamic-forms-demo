@@ -14,6 +14,8 @@ export interface FormContextValue {
   getFieldError: (fieldId: string) => string | undefined;
   shouldShowSectionError: (sectionId: string) => boolean;
   getSectionError: (sectionId: string) => string | undefined;
+  isSectionVisible: (sectionId: string) => boolean;
+  isFieldVisible: (fieldId: string) => boolean;
 }
 
 const FormContext = createContext<FormContextValue | null>(null);

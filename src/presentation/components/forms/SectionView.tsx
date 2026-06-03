@@ -10,10 +10,26 @@ interface SectionViewProps {
 }
 
 export function SectionView({ section }: SectionViewProps) {
-  const { shouldShowSectionError, getSectionError } = useFormContext();
-  const fields = getSortedFields(section);
+  const {
+    isSectionVisible,
+    isFieldVisible,
+    shouldShowSectionError,
+    getSectionError,
+  } = useFormContext();
+
+  if (!isSectionVisible(section.id)) {
+    return null;
+  }
+
+  const fields = getSortedFields(section).filter(field =>
+    isFieldVisible(field.id),
+  );
   const sectionError = getSectionError(section.id);
   const showSectionError = shouldShowSectionError(section.id);
+
+  if (fields.length === 0 && !showSectionError) {
+    return null;
+  }
 
   return (
     <View style={styles.section}>

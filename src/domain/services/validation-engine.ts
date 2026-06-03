@@ -19,6 +19,7 @@ import {
   isEmptyValue,
 } from '../utils/value-utils';
 import type { IRuleEvaluator } from './rule-evaluator';
+import type { IVisibilityEngine } from './visibility-engine';
 import {
   defaultValidationMessage,
   DEFAULT_SECTION_VALIDATION_MESSAGE,
@@ -37,18 +38,35 @@ export interface IValidationEngine {
 }
 
 export class ValidationEngine implements IValidationEngine {
-  constructor(private readonly ruleEvaluator: IRuleEvaluator) {}
+  constructor(
+    private readonly ruleEvaluator: IRuleEvaluator,
+    private readonly visibilityEngine?: IVisibilityEngine,
+  ) {}
 
   validate(schema: FormSchema, values: FormValues): FormValidationResult {
     const fieldErrors: FieldValidationError[] = [];
     const sectionErrors: SectionValidationError[] = [];
+    const visibility = this.visibilityEngine?.resolve(schema, values);
 
     for (const section of schema.sections) {
+      if (
+        visibility &&
+        !visibility.visibleSectionIds.has(section.id)
+      ) {
+        continue;
+      }
+
       const sectionError = this.validateSection(section, values);
       if (sectionError) {
         sectionErrors.push(sectionError);
       }
       for (const field of section.fields) {
+        if (
+          visibility &&
+          !visibility.visibleFieldIds.has(field.id)
+        ) {
+          continue;
+        }
         fieldErrors.push(...this.validateField(field, values));
       }
     }

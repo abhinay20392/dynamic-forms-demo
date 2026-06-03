@@ -1,8 +1,13 @@
 import type { FormSchema } from '../src/domain';
 import { RuleEvaluator } from '../src/domain/services/rule-evaluator';
 import { ValidationEngine } from '../src/domain/services/validation-engine';
+import { VisibilityEngine } from '../src/domain/services/visibility-engine';
 
-const engine = new ValidationEngine(new RuleEvaluator());
+const ruleEvaluator = new RuleEvaluator();
+const engine = new ValidationEngine(
+  ruleEvaluator,
+  new VisibilityEngine(ruleEvaluator),
+);
 
 const schema: FormSchema = {
   id: 'test',
@@ -98,6 +103,38 @@ describe('ValidationEngine', () => {
       role: 'student',
     });
     expect(result.sectionErrors.some(e => e.sectionId === 'gated')).toBe(true);
+  });
+
+  it('skips validation for hidden fields', () => {
+    const visSchema: FormSchema = {
+      id: 'vis',
+      title: 'Vis',
+      version: '1.0.0',
+      sections: [
+        {
+          id: 'main',
+          title: 'Main',
+          order: 1,
+          fields: [
+            { id: 'role', label: 'Role', type: 'text' },
+            {
+              id: 'secret',
+              label: 'Secret',
+              type: 'text',
+              required: true,
+              visibility: {
+                all: [{ field: 'role', op: 'equals', value: 'admin' }],
+              },
+            },
+          ],
+        },
+      ],
+    };
+    const result = engine.validate(visSchema, {
+      role: 'user',
+      secret: '',
+    });
+    expect(result.fieldErrors.some(e => e.fieldId === 'secret')).toBe(false);
   });
 
   it('adds implicit required from field.required flag', () => {

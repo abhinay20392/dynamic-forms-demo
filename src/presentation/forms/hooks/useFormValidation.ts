@@ -15,6 +15,11 @@ const emptyResult: FormValidationResult = {
   sectionErrors: [],
 };
 
+export interface UseFormValidationOptions {
+  visibleFieldIds?: ReadonlySet<string>;
+  visibleSectionIds?: ReadonlySet<string>;
+}
+
 export interface UseFormValidationResult {
   fieldErrorsById: Record<string, string>;
   sectionErrorsById: Record<string, string>;
@@ -37,11 +42,15 @@ export function useFormValidation(
   values: FormValues,
   setValue: (fieldId: string, value: FieldValue | undefined) => void,
   validationEngine: IValidationEngine = getAppContainer().validationEngine,
+  visibilityOptions?: UseFormValidationOptions,
 ): UseFormValidationResult {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [lastResult, setLastResult] =
     useState<FormValidationResult>(emptyResult);
+
+  const visibleFieldIds = visibilityOptions?.visibleFieldIds;
+  const visibleSectionIds = visibilityOptions?.visibleSectionIds;
 
   const runValidation = useCallback(
     (nextValues: FormValues) => {
@@ -57,6 +66,23 @@ export function useFormValidation(
       runValidation(values);
     }
   }, [values, touched, submitAttempted, runValidation]);
+
+  useEffect(() => {
+    if (!visibleFieldIds) {
+      return;
+    }
+    setTouched(previous => {
+      let changed = false;
+      const next = { ...previous };
+      for (const fieldId of Object.keys(next)) {
+        if (!visibleFieldIds.has(fieldId)) {
+          delete next[fieldId];
+          changed = true;
+        }
+      }
+      return changed ? next : previous;
+    });
+  }, [visibleFieldIds]);
 
   const fieldErrorsById = useMemo(
     () => mapFieldErrorsById(lastResult.fieldErrors),
@@ -74,21 +100,21 @@ export function useFormValidation(
 
   const onFieldBlur = useCallback(
     (fieldId: string) => {
+      if (visibleFieldIds && !visibleFieldIds.has(fieldId)) {
+        return;
+      }
       touchField(fieldId);
       runValidation(values);
     },
-    [touchField, runValidation, values],
+    [touchField, runValidation, values, visibleFieldIds],
   );
 
   const setFieldValue = useCallback(
     (fieldId: string, value: FieldValue | undefined) => {
       setValue(fieldId, value);
-      if (touched[fieldId] || submitAttempted) {
-        const nextValues = { ...values, [fieldId]: value };
-        runValidation(nextValues);
-      }
+      // Re-validation runs in useEffect when `values` updates (includes visibility clears).
     },
-    [setValue, touched, submitAttempted, values, runValidation],
+    [setValue],
   );
 
   const validateAll = useCallback(() => {
@@ -103,31 +129,54 @@ export function useFormValidation(
 
   const handleSubmit = useCallback(() => {
     setSubmitAttempted(true);
-    const allFieldIds = schema.sections.flatMap(section =>
-      section.fields.map(field => field.id),
-    );
+    const fieldIds = schema.sections.flatMap(section => {
+      if (visibleSectionIds && !visibleSectionIds.has(section.id)) {
+        return [];
+      }
+      return section.fields
+        .filter(
+          field =>
+            !visibleFieldIds || visibleFieldIds.has(field.id),
+        )
+        .map(field => field.id);
+    });
+
     setTouched(previous => {
       const next = { ...previous };
-      for (const fieldId of allFieldIds) {
+      for (const fieldId of fieldIds) {
         next[fieldId] = true;
       }
       return next;
     });
     return runValidation(values);
-  }, [schema.sections, runValidation, values]);
+  }, [
+    schema.sections,
+    runValidation,
+    values,
+    visibleFieldIds,
+    visibleSectionIds,
+  ]);
 
   const shouldShowFieldError = useCallback(
-    (fieldId: string) =>
-      Boolean(
+    (fieldId: string) => {
+      if (visibleFieldIds && !visibleFieldIds.has(fieldId)) {
+        return false;
+      }
+      return Boolean(
         (touched[fieldId] || submitAttempted) && fieldErrorsById[fieldId],
-      ),
-    [touched, submitAttempted, fieldErrorsById],
+      );
+    },
+    [touched, submitAttempted, fieldErrorsById, visibleFieldIds],
   );
 
   const shouldShowSectionError = useCallback(
-    (sectionId: string) =>
-      Boolean(submitAttempted && sectionErrorsById[sectionId]),
-    [submitAttempted, sectionErrorsById],
+    (sectionId: string) => {
+      if (visibleSectionIds && !visibleSectionIds.has(sectionId)) {
+        return false;
+      }
+      return Boolean(submitAttempted && sectionErrorsById[sectionId]);
+    },
+    [submitAttempted, sectionErrorsById, visibleSectionIds],
   );
 
   const getFieldError = useCallback(

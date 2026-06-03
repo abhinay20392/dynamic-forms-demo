@@ -65,6 +65,6 @@ Do not construct repositories inside UI components.
 | InMemorySchemaRepository | Done |
 | SubmissionRepository | Stub (Phase 6) |
 | Rule evaluator + validation engine | Done (Phase 3) |
-| Visibility engine | Phase 4 |
+| Visibility engine | Done (Phase 4) |
 | File cache service | Phase 5 |
 | Presentation screens | Phase 2+ |
