@@ -18,6 +18,11 @@
 - `forms/hooks/useFormVisibility.ts` — live updates + `clear` hidden values
 - Validation skips hidden sections/fields
 
+## Phase 5 (done)
+- `FilePickerField` — document picker (folder), cached path in form state
+- `ImagePickerField` — gallery/folder + camera
+- `FileCacheServiceImpl` — copies assets to `CacheDir/dynamic-forms/`
+
 ## Upcoming
 - `FormListScreen` — submitted forms list (Phase 7)
 - `FormDetailsScreen` — submission details + edit entry (Phase 7)

@@ -1,6 +1,7 @@
 import type { FieldSchema } from '../../../domain/entities/schema/fields';
 import { CheckboxGroupField } from './CheckboxGroupField';
-import { PlaceholderField } from './PlaceholderField';
+import { FilePickerField } from './FilePickerField';
+import { ImagePickerField } from './ImagePickerField';
 import { RadioGroupField } from './RadioGroupField';
 import { TextFieldInput } from './TextFieldInput';
 
@@ -17,19 +18,9 @@ export function FieldRenderer({ field }: FieldRendererProps) {
     case 'checkbox':
       return <CheckboxGroupField field={field} />;
     case 'file':
-      return (
-        <PlaceholderField
-          field={field}
-          message="File picker — coming in Phase 5"
-        />
-      );
+      return <FilePickerField field={field} />;
     case 'image':
-      return (
-        <PlaceholderField
-          field={field}
-          message="Image picker — coming in Phase 5"
-        />
-      );
+      return <ImagePickerField field={field} />;
     default:
       return null;
   }

@@ -6,6 +6,8 @@ import type { IValidationEngine } from '../../domain/services/validation-engine'
 import { ValidationEngine } from '../../domain/services/validation-engine';
 import type { IVisibilityEngine } from '../../domain/services/visibility-engine';
 import { VisibilityEngine } from '../../domain/services/visibility-engine';
+import type { IFileCacheService } from '../../domain/services/file-cache-service';
+import { FileCacheServiceImpl } from '../storage/file-cache-service.impl';
 import { InMemorySchemaRepository } from '../../data/repositories/in-memory-schema-repository';
 import { SubmissionRepositoryStub } from '../../data/repositories/submission-repository.stub';
 
@@ -18,6 +20,7 @@ export interface AppContainer {
   ruleEvaluator: IRuleEvaluator;
   visibilityEngine: IVisibilityEngine;
   validationEngine: IValidationEngine;
+  fileCacheService: IFileCacheService;
 }
 
 let container: AppContainer | null = null;
@@ -26,7 +29,6 @@ let container: AppContainer | null = null;
  * Composition root. Wire new implementations here as phases land.
  *
  * Phase 2+: presentation hooks / screens
- * Phase 5: fileCacheService
  * Phase 6: replace SubmissionRepositoryStub with LocalSubmissionRepository
  * Phase 8: register GenerateRandomSchema use case
  */
@@ -34,6 +36,7 @@ export function getAppContainer(): AppContainer {
   if (!container) {
     const ruleEvaluator = new RuleEvaluator();
     const visibilityEngine = new VisibilityEngine(ruleEvaluator);
+    const fileCacheService = new FileCacheServiceImpl();
     container = {
       schemaRepository: new InMemorySchemaRepository([
         sampleBasic,
@@ -46,6 +49,7 @@ export function getAppContainer(): AppContainer {
         ruleEvaluator,
         visibilityEngine,
       ),
+      fileCacheService,
     };
   }
   return container;
