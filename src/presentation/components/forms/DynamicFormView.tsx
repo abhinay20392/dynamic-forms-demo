@@ -1,6 +1,17 @@
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import type { FormSchema } from '../../../domain/entities/schema/form-schema';
+import type { FormSubmission } from '../../../domain/entities/submission/form-submission';
 import type { FormValues } from '../../../domain/entities/submission/field-values';
+import { getAppContainer } from '../../../infrastructure/di/app-container';
 import { getSortedSections } from '../../../shared/utils/form-schema-utils';
 import {
   FormProvider,
@@ -16,7 +27,7 @@ interface DynamicFormViewProps {
   schema: FormSchema;
   mode?: FormMode;
   initialValues?: FormValues;
-  onSubmitSuccess?: (values: FormValues) => void;
+  onSubmitSuccess?: (submission: FormSubmission) => void;
 }
 
 export function DynamicFormView({
@@ -38,19 +49,42 @@ export function DynamicFormView({
     },
   );
   const sections = getSortedSections(schema);
+  const [saving, setSaving] = useState(false);
+  const [savedSubmission, setSavedSubmission] = useState<FormSubmission | null>(
+    null,
+  );
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     const result = validation.handleSubmit();
-    if (result.isValid) {
-      onSubmitSuccess?.(values);
-      Alert.alert('Validation passed', 'Form is valid. Saving comes in Phase 6.');
+    if (!result.isValid) {
+      const errorCount =
+        result.fieldErrors.length + result.sectionErrors.length;
+      Alert.alert(
+        'Validation failed',
+        `Please fix ${errorCount} issue(s) before submitting.`,
+      );
       return;
     }
-    const errorCount =
-      result.fieldErrors.length + result.sectionErrors.length;
+
+    setSaving(true);
+    const saveResult =
+      await getAppContainer().createSubmissionUseCase.execute({
+        schema,
+        values,
+        visibleFieldIds: visibility.visibleFieldIds,
+      });
+    setSaving(false);
+
+    if (!saveResult.success) {
+      Alert.alert('Save failed', saveResult.error);
+      return;
+    }
+
+    setSavedSubmission(saveResult.data);
+    onSubmitSuccess?.(saveResult.data);
     Alert.alert(
-      'Validation failed',
-      `Please fix ${errorCount} issue(s) before submitting.`,
+      'Submission saved',
+      `Saved as ${saveResult.data.id}`,
     );
   };
 
@@ -79,21 +113,35 @@ export function DynamicFormView({
         {sections.map(section => (
           <SectionView key={section.id} section={section} />
         ))}
-        <Pressable style={styles.submitButton} onPress={onSubmit}>
-          <Text style={styles.submitLabel}>Submit</Text>
+        <Pressable
+          style={[styles.submitButton, saving && styles.submitDisabled]}
+          onPress={onSubmit}
+          disabled={saving}>
+          {saving ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.submitLabel}>Submit</Text>
+          )}
         </Pressable>
         <Pressable
           style={styles.resetButton}
           onPress={() => {
             reset();
             validation.resetValidation();
+            setSavedSubmission(null);
           }}>
           <Text style={styles.resetLabel}>Reset</Text>
         </Pressable>
         <View style={styles.statePreview}>
-          <Text style={styles.stateTitle}>Current values (demo)</Text>
+          <Text style={styles.stateTitle}>
+            {savedSubmission ? 'Saved result JSON' : 'Current values (demo)'}
+          </Text>
           <Text style={styles.stateJson}>
-            {JSON.stringify(values, null, 2)}
+            {JSON.stringify(
+              savedSubmission ?? values,
+              null,
+              2,
+            )}
           </Text>
         </View>
       </ScrollView>
@@ -120,6 +168,11 @@ const styles = StyleSheet.create({
     paddingVertical: formSpacing.md,
     borderRadius: 8,
     alignItems: 'center',
+    minHeight: 48,
+    justifyContent: 'center',
+  },
+  submitDisabled: {
+    opacity: 0.7,
   },
   submitLabel: {
     color: '#fff',

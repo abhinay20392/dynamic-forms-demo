@@ -13,3 +13,5 @@ export * from './services/validation-engine';
 export * from './services/visibility-engine';
 export * from './services/validation-messages';
 export * from './utils/value-utils';
+export * from './services/submission-result-builder';
+export * from './use-cases/create-submission';

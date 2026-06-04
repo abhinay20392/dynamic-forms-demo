@@ -13,6 +13,7 @@ interface SchemaListScreenProps {
   schemas: FormSchema[];
   loading: boolean;
   error: string | null;
+  submissionCount?: number;
   onSelectSchema: (schema: FormSchema) => void;
 }
 
@@ -20,6 +21,7 @@ export function SchemaListScreen({
   schemas,
   loading,
   error,
+  submissionCount = 0,
   onSelectSchema,
 }: SchemaListScreenProps) {
   if (loading) {
@@ -48,6 +50,9 @@ export function SchemaListScreen({
           <Text style={styles.title}>Dynamic Forms Demo</Text>
           <Text style={styles.subtitle}>
             Select a form to open
+          </Text>
+          <Text style={styles.submissionsMeta}>
+            {submissionCount} submission{submissionCount === 1 ? '' : 's'} saved
           </Text>
         </View>
       }
@@ -93,6 +98,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: formColors.textSecondary,
     marginTop: formSpacing.xs,
+  },
+  submissionsMeta: {
+    fontSize: 13,
+    color: formColors.primary,
+    marginTop: formSpacing.sm,
+    fontWeight: '500',
   },
   card: {
     padding: formSpacing.md,

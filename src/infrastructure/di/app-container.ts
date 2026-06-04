@@ -7,9 +7,10 @@ import { ValidationEngine } from '../../domain/services/validation-engine';
 import type { IVisibilityEngine } from '../../domain/services/visibility-engine';
 import { VisibilityEngine } from '../../domain/services/visibility-engine';
 import type { IFileCacheService } from '../../domain/services/file-cache-service';
-import { FileCacheServiceImpl } from '../storage/file-cache-service.impl';
+import { CreateSubmissionUseCase } from '../../domain/use-cases/create-submission';
 import { InMemorySchemaRepository } from '../../data/repositories/in-memory-schema-repository';
-import { SubmissionRepositoryStub } from '../../data/repositories/submission-repository.stub';
+import { LocalSubmissionRepository } from '../../data/repositories/local-submission-repository';
+import { FileCacheServiceImpl } from '../storage/file-cache-service.impl';
 
 import sampleBasic from '../../assets/schemas/sample-basic.form.json';
 import sampleCrossSection from '../../assets/schemas/sample-cross-section.form.json';
@@ -21,6 +22,7 @@ export interface AppContainer {
   visibilityEngine: IVisibilityEngine;
   validationEngine: IValidationEngine;
   fileCacheService: IFileCacheService;
+  createSubmissionUseCase: CreateSubmissionUseCase;
 }
 
 let container: AppContainer | null = null;
@@ -28,8 +30,6 @@ let container: AppContainer | null = null;
 /**
  * Composition root. Wire new implementations here as phases land.
  *
- * Phase 2+: presentation hooks / screens
- * Phase 6: replace SubmissionRepositoryStub with LocalSubmissionRepository
  * Phase 8: register GenerateRandomSchema use case
  */
 export function getAppContainer(): AppContainer {
@@ -37,12 +37,13 @@ export function getAppContainer(): AppContainer {
     const ruleEvaluator = new RuleEvaluator();
     const visibilityEngine = new VisibilityEngine(ruleEvaluator);
     const fileCacheService = new FileCacheServiceImpl();
+    const submissionRepository = new LocalSubmissionRepository();
     container = {
       schemaRepository: new InMemorySchemaRepository([
         sampleBasic,
         sampleCrossSection,
       ]),
-      submissionRepository: new SubmissionRepositoryStub(),
+      submissionRepository,
       ruleEvaluator,
       visibilityEngine,
       validationEngine: new ValidationEngine(
@@ -50,6 +51,9 @@ export function getAppContainer(): AppContainer {
         visibilityEngine,
       ),
       fileCacheService,
+      createSubmissionUseCase: new CreateSubmissionUseCase(
+        submissionRepository,
+      ),
     };
   }
   return container;

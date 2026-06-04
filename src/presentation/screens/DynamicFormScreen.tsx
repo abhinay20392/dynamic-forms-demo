@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { FormSchema } from '../../domain/entities/schema/form-schema';
+import type { FormSubmission } from '../../domain/entities/submission/form-submission';
 import type { FormValues } from '../../domain/entities/submission/field-values';
 import { DynamicFormView } from '../components/forms/DynamicFormView';
 import type { FormMode } from '../forms/context/FormContext';
@@ -10,6 +11,7 @@ interface DynamicFormScreenProps {
   mode?: FormMode;
   initialValues?: FormValues;
   onBack: () => void;
+  onSubmissionSaved?: (submission: FormSubmission) => void;
 }
 
 export function DynamicFormScreen({
@@ -17,6 +19,7 @@ export function DynamicFormScreen({
   mode = 'create',
   initialValues,
   onBack,
+  onSubmissionSaved,
 }: DynamicFormScreenProps) {
   return (
     <View style={styles.container}>
@@ -37,6 +40,7 @@ export function DynamicFormScreen({
         schema={schema}
         mode={mode}
         initialValues={initialValues}
+        onSubmitSuccess={onSubmissionSaved}
       />
     </View>
   );

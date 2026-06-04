@@ -63,7 +63,7 @@ Do not construct repositories inside UI components.
 | JSON contract types | Done |
 | Sample schemas | Done |
 | InMemorySchemaRepository | Done |
-| SubmissionRepository | Stub (Phase 6) |
+| SubmissionRepository (LocalSubmissionRepository) | Done (Phase 6) |
 | Rule evaluator + validation engine | Done (Phase 3) |
 | Visibility engine | Done (Phase 4) |
 | File cache service | Done (Phase 5) |

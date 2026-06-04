@@ -23,6 +23,11 @@
 - `ImagePickerField` — gallery/folder + camera
 - `FileCacheServiceImpl` — copies assets to `CacheDir/dynamic-forms/`
 
+## Phase 6 (done)
+- `CreateSubmissionUseCase` + `submission-result-builder`
+- `LocalSubmissionRepository` (AsyncStorage)
+- Submit saves normalized JSON; preview shows saved result
+
 ## Upcoming
 - `FormListScreen` — submitted forms list (Phase 7)
 - `FormDetailsScreen` — submission details + edit entry (Phase 7)

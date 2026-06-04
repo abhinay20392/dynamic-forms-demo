@@ -14,8 +14,16 @@ type AppRoute =
 function App() {
   const [route, setRoute] = useState<AppRoute>({ name: 'list' });
   const [schemas, setSchemas] = useState<FormSchema[]>([]);
+  const [submissionCount, setSubmissionCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  const loadSubmissions = useCallback(async () => {
+    const result = await getAppContainer().submissionRepository.list();
+    if (result.success) {
+      setSubmissionCount(result.data.length);
+    }
+  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -27,10 +35,11 @@ function App() {
       } else {
         setLoadError(result.error);
       }
+      await loadSubmissions();
       setLoading(false);
     };
     load();
-  }, []);
+  }, [loadSubmissions]);
 
   const openForm = useCallback((schema: FormSchema) => {
     setRoute({ name: 'form', schema });
@@ -38,7 +47,8 @@ function App() {
 
   const goBack = useCallback(() => {
     setRoute({ name: 'list' });
-  }, []);
+    loadSubmissions();
+  }, [loadSubmissions]);
 
   return (
     <SafeAreaProvider>
@@ -49,10 +59,15 @@ function App() {
             schemas={schemas}
             loading={loading}
             error={loadError}
+            submissionCount={submissionCount}
             onSelectSchema={openForm}
           />
         ) : (
-          <DynamicFormScreen schema={route.schema} onBack={goBack} />
+          <DynamicFormScreen
+            schema={route.schema}
+            onBack={goBack}
+            onSubmissionSaved={loadSubmissions}
+          />
         )}
       </SafeAreaView>
     </SafeAreaProvider>

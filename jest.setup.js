@@ -31,3 +31,21 @@ jest.mock('react-native-image-picker', () => ({
   launchCamera: jest.fn(),
   launchImageLibrary: jest.fn(),
 }));
+
+const asyncStorage: Record<string, string> = {};
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  __esModule: true,
+  default: {
+    setItem: jest.fn(async (key, value) => {
+      asyncStorage[key] = value;
+    }),
+    getItem: jest.fn(async key => asyncStorage[key] ?? null),
+    removeItem: jest.fn(async key => {
+      delete asyncStorage[key];
+    }),
+    clear: jest.fn(async () => {
+      Object.keys(asyncStorage).forEach(key => delete asyncStorage[key]);
+    }),
+  },
+}));
