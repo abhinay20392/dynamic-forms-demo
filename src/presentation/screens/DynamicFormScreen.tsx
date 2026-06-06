@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { FormSchema } from '../../domain/entities/schema/form-schema';
 import type { FormSubmission } from '../../domain/entities/submission/form-submission';
 import type { FormValues } from '../../domain/entities/submission/field-values';
+import { buildInitialValues } from '../../shared/utils/form-schema-utils';
 import { DynamicFormView } from '../components/forms/DynamicFormView';
 import type { FormMode } from '../forms/context/FormContext';
 import { formColors, formSpacing } from '../theme/forms';
@@ -9,6 +10,7 @@ import { formColors, formSpacing } from '../theme/forms';
 interface DynamicFormScreenProps {
   schema: FormSchema;
   mode?: FormMode;
+  editingSubmission?: FormSubmission;
   initialValues?: FormValues;
   onBack: () => void;
   onSubmissionSaved?: (submission: FormSubmission) => void;
@@ -17,10 +19,17 @@ interface DynamicFormScreenProps {
 export function DynamicFormScreen({
   schema,
   mode = 'create',
+  editingSubmission,
   initialValues,
   onBack,
   onSubmissionSaved,
 }: DynamicFormScreenProps) {
+  const resolvedInitialValues =
+    initialValues ??
+    (editingSubmission
+      ? buildInitialValues(schema, editingSubmission.values)
+      : undefined);
+
   return (
     <View style={styles.container}>
       <View style={styles.toolbar}>
@@ -39,7 +48,8 @@ export function DynamicFormScreen({
       <DynamicFormView
         schema={schema}
         mode={mode}
-        initialValues={initialValues}
+        editingSubmission={editingSubmission}
+        initialValues={resolvedInitialValues}
         onSubmitSuccess={onSubmissionSaved}
       />
     </View>

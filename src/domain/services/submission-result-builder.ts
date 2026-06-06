@@ -67,3 +67,28 @@ export function buildFormSubmission(
     createdAt: result.submittedAt,
   };
 }
+
+export function buildFormSubmissionUpdate(
+  existing: FormSubmission,
+  schema: FormSchema,
+  values: FormValues,
+  visibleFieldIds: ReadonlySet<string>,
+  updatedAt: string = new Date().toISOString(),
+): FormSubmission {
+  const result = buildSubmissionResult(
+    schema,
+    values,
+    visibleFieldIds,
+    updatedAt,
+  );
+
+  return {
+    id: existing.id,
+    schemaId: result.schemaId,
+    schemaVersion: result.schemaVersion,
+    title: result.title,
+    values: result.values,
+    createdAt: existing.createdAt,
+    updatedAt: result.submittedAt,
+  };
+}

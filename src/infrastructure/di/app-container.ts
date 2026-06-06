@@ -8,6 +8,7 @@ import type { IVisibilityEngine } from '../../domain/services/visibility-engine'
 import { VisibilityEngine } from '../../domain/services/visibility-engine';
 import type { IFileCacheService } from '../../domain/services/file-cache-service';
 import { CreateSubmissionUseCase } from '../../domain/use-cases/create-submission';
+import { UpdateSubmissionUseCase } from '../../domain/use-cases/update-submission';
 import { InMemorySchemaRepository } from '../../data/repositories/in-memory-schema-repository';
 import { LocalSubmissionRepository } from '../../data/repositories/local-submission-repository';
 import { FileCacheServiceImpl } from '../storage/file-cache-service.impl';
@@ -23,6 +24,7 @@ export interface AppContainer {
   validationEngine: IValidationEngine;
   fileCacheService: IFileCacheService;
   createSubmissionUseCase: CreateSubmissionUseCase;
+  updateSubmissionUseCase: UpdateSubmissionUseCase;
 }
 
 let container: AppContainer | null = null;
@@ -52,6 +54,9 @@ export function getAppContainer(): AppContainer {
       ),
       fileCacheService,
       createSubmissionUseCase: new CreateSubmissionUseCase(
+        submissionRepository,
+      ),
+      updateSubmissionUseCase: new UpdateSubmissionUseCase(
         submissionRepository,
       ),
     };

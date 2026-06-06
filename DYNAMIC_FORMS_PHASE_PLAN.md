@@ -138,7 +138,7 @@ Build a React Native demo app where forms are generated from JSON and support:
 
 ---
 
-## Phase 7 - Submitted Forms List, Details, and Edit Mode
+## Phase 7 - Submitted Forms List, Details, and Edit Mode ✅
 ### Scope
 - Add submitted forms listing flow.
 - Add details screen.

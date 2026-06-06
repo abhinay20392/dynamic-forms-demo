@@ -15,6 +15,7 @@ interface SchemaListScreenProps {
   error: string | null;
   submissionCount?: number;
   onSelectSchema: (schema: FormSchema) => void;
+  onViewSubmissions: () => void;
 }
 
 export function SchemaListScreen({
@@ -23,6 +24,7 @@ export function SchemaListScreen({
   error,
   submissionCount = 0,
   onSelectSchema,
+  onViewSubmissions,
 }: SchemaListScreenProps) {
   if (loading) {
     return (
@@ -54,6 +56,11 @@ export function SchemaListScreen({
           <Text style={styles.submissionsMeta}>
             {submissionCount} submission{submissionCount === 1 ? '' : 's'} saved
           </Text>
+          <Pressable style={styles.submissionsButton} onPress={onViewSubmissions}>
+            <Text style={styles.submissionsButtonLabel}>
+              View submitted forms →
+            </Text>
+          </Pressable>
         </View>
       }
       renderItem={({ item }) => (
@@ -104,6 +111,15 @@ const styles = StyleSheet.create({
     color: formColors.primary,
     marginTop: formSpacing.sm,
     fontWeight: '500',
+  },
+  submissionsButton: {
+    marginTop: formSpacing.md,
+    alignSelf: 'flex-start',
+  },
+  submissionsButtonLabel: {
+    fontSize: 15,
+    color: formColors.primary,
+    fontWeight: '600',
   },
   card: {
     padding: formSpacing.md,

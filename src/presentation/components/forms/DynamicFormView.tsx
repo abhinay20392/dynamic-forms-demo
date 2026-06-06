@@ -27,6 +27,7 @@ interface DynamicFormViewProps {
   schema: FormSchema;
   mode?: FormMode;
   initialValues?: FormValues;
+  editingSubmission?: FormSubmission;
   onSubmitSuccess?: (submission: FormSubmission) => void;
 }
 
@@ -34,8 +35,10 @@ export function DynamicFormView({
   schema,
   mode = 'create',
   initialValues,
+  editingSubmission,
   onSubmitSuccess,
 }: DynamicFormViewProps) {
+  const isEditMode = mode === 'edit' && editingSubmission !== undefined;
   const { values, setValues, reset } = useFormState(schema, initialValues);
   const visibility = useFormVisibility(schema, values, setValues);
   const validation = useFormValidation(
@@ -67,12 +70,19 @@ export function DynamicFormView({
     }
 
     setSaving(true);
-    const saveResult =
-      await getAppContainer().createSubmissionUseCase.execute({
-        schema,
-        values,
-        visibleFieldIds: visibility.visibleFieldIds,
-      });
+    const container = getAppContainer();
+    const saveResult = isEditMode
+      ? await container.updateSubmissionUseCase.execute({
+          existing: editingSubmission,
+          schema,
+          values,
+          visibleFieldIds: visibility.visibleFieldIds,
+        })
+      : await container.createSubmissionUseCase.execute({
+          schema,
+          values,
+          visibleFieldIds: visibility.visibleFieldIds,
+        });
     setSaving(false);
 
     if (!saveResult.success) {
@@ -83,8 +93,10 @@ export function DynamicFormView({
     setSavedSubmission(saveResult.data);
     onSubmitSuccess?.(saveResult.data);
     Alert.alert(
-      'Submission saved',
-      `Saved as ${saveResult.data.id}`,
+      isEditMode ? 'Submission updated' : 'Submission saved',
+      isEditMode
+        ? `Updated ${saveResult.data.id}`
+        : `Saved as ${saveResult.data.id}`,
     );
   };
 
@@ -120,7 +132,9 @@ export function DynamicFormView({
           {saving ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.submitLabel}>Submit</Text>
+            <Text style={styles.submitLabel}>
+              {isEditMode ? 'Save changes' : 'Submit'}
+            </Text>
           )}
         </Pressable>
         <Pressable
@@ -134,7 +148,11 @@ export function DynamicFormView({
         </Pressable>
         <View style={styles.statePreview}>
           <Text style={styles.stateTitle}>
-            {savedSubmission ? 'Saved result JSON' : 'Current values (demo)'}
+            {savedSubmission
+              ? isEditMode
+                ? 'Updated result JSON'
+                : 'Saved result JSON'
+              : 'Current values (demo)'}
           </Text>
           <Text style={styles.stateJson}>
             {JSON.stringify(

@@ -28,7 +28,10 @@
 - `LocalSubmissionRepository` (AsyncStorage)
 - Submit saves normalized JSON; preview shows saved result
 
+## Phase 7 (done)
+- `SubmissionListScreen` — all saved submissions
+- `FormDetailsScreen` — sectioned details, JSON, image preview, Edit
+- Edit mode prefills values (including attachments) and `UpdateSubmissionUseCase`
+
 ## Upcoming
-- `FormListScreen` — submitted forms list (Phase 7)
-- `FormDetailsScreen` — submission details + edit entry (Phase 7)
 - File/image field components (Phase 5)
