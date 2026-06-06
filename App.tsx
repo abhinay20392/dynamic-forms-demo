@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { StatusBar, StyleSheet } from 'react-native';
+import { Alert, StatusBar, StyleSheet } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import type { FormSchema } from './src/domain';
 import type { FormSubmission } from './src/domain/entities/submission/form-submission';
@@ -22,8 +22,19 @@ function App() {
   const [schemas, setSchemas] = useState<FormSchema[]>([]);
   const [submissionCount, setSubmissionCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [detailsVersion, setDetailsVersion] = useState(0);
+
+  const loadSchemas = useCallback(async () => {
+    const result = await getAppContainer().schemaRepository.getAll();
+    if (result.success) {
+      setSchemas(result.data);
+      setLoadError(null);
+    } else {
+      setLoadError(result.error);
+    }
+  }, []);
 
   const loadSubmissions = useCallback(async () => {
     const result = await getAppContainer().submissionRepository.list();
@@ -35,18 +46,12 @@ function App() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const result = await getAppContainer().schemaRepository.getAll();
-      if (result.success) {
-        setSchemas(result.data);
-        setLoadError(null);
-      } else {
-        setLoadError(result.error);
-      }
+      await loadSchemas();
       await loadSubmissions();
       setLoading(false);
     };
     load();
-  }, [loadSubmissions]);
+  }, [loadSchemas, loadSubmissions]);
 
   const openForm = useCallback((schema: FormSchema) => {
     setRoute({ name: 'form', schema });
@@ -72,6 +77,21 @@ function App() {
     loadSubmissions();
   }, [loadSubmissions]);
 
+  const generateRandomForm = useCallback(async () => {
+    setGenerating(true);
+    const result =
+      await getAppContainer().generateRandomSchemaUseCase.execute();
+    setGenerating(false);
+
+    if (!result.success) {
+      Alert.alert('Generation failed', result.error);
+      return;
+    }
+
+    await loadSchemas();
+    setRoute({ name: 'form', schema: result.data });
+  }, [loadSchemas]);
+
   const renderRoute = () => {
     switch (route.name) {
       case 'list':
@@ -79,10 +99,12 @@ function App() {
           <SchemaListScreen
             schemas={schemas}
             loading={loading}
+            generating={generating}
             error={loadError}
             submissionCount={submissionCount}
             onSelectSchema={openForm}
             onViewSubmissions={openSubmissions}
+            onGenerateRandom={generateRandomForm}
           />
         );
       case 'submissions':

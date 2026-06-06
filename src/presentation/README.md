@@ -33,5 +33,10 @@
 - `FormDetailsScreen` — sectioned details, JSON, image preview, Edit
 - Edit mode prefills values (including attachments) and `UpdateSubmissionUseCase`
 
+## Phase 8 (done)
+- `RandomSchemaGenerator` + `GenerateRandomSchemaUseCase`
+- Home screen **Generate random form** button → saves schema and opens it
+- Guardrails: acyclic rule refs, always-visible required basics section
+
 ## Upcoming
 - File/image field components (Phase 5)

@@ -12,19 +12,23 @@ import { formColors, formSpacing } from '../theme/forms';
 interface SchemaListScreenProps {
   schemas: FormSchema[];
   loading: boolean;
+  generating?: boolean;
   error: string | null;
   submissionCount?: number;
   onSelectSchema: (schema: FormSchema) => void;
   onViewSubmissions: () => void;
+  onGenerateRandom: () => void;
 }
 
 export function SchemaListScreen({
   schemas,
   loading,
+  generating = false,
   error,
   submissionCount = 0,
   onSelectSchema,
   onViewSubmissions,
+  onGenerateRandom,
 }: SchemaListScreenProps) {
   if (loading) {
     return (
@@ -60,6 +64,16 @@ export function SchemaListScreen({
             <Text style={styles.submissionsButtonLabel}>
               View submitted forms →
             </Text>
+          </Pressable>
+          <Pressable
+            style={[styles.generateButton, generating && styles.generateDisabled]}
+            onPress={onGenerateRandom}
+            disabled={generating}>
+            {generating ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.generateLabel}>Generate random form</Text>
+            )}
           </Pressable>
         </View>
       }
@@ -119,6 +133,24 @@ const styles = StyleSheet.create({
   submissionsButtonLabel: {
     fontSize: 15,
     color: formColors.primary,
+    fontWeight: '600',
+  },
+  generateButton: {
+    marginTop: formSpacing.md,
+    backgroundColor: formColors.primary,
+    paddingVertical: formSpacing.sm + 2,
+    paddingHorizontal: formSpacing.md,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    minWidth: 200,
+    alignItems: 'center',
+  },
+  generateDisabled: {
+    opacity: 0.7,
+  },
+  generateLabel: {
+    color: '#fff',
+    fontSize: 15,
     fontWeight: '600',
   },
   card: {

@@ -9,6 +9,7 @@ import { VisibilityEngine } from '../../domain/services/visibility-engine';
 import type { IFileCacheService } from '../../domain/services/file-cache-service';
 import { CreateSubmissionUseCase } from '../../domain/use-cases/create-submission';
 import { UpdateSubmissionUseCase } from '../../domain/use-cases/update-submission';
+import { GenerateRandomSchemaUseCase } from '../../domain/use-cases/generate-random-schema';
 import { InMemorySchemaRepository } from '../../data/repositories/in-memory-schema-repository';
 import { LocalSubmissionRepository } from '../../data/repositories/local-submission-repository';
 import { FileCacheServiceImpl } from '../storage/file-cache-service.impl';
@@ -25,14 +26,13 @@ export interface AppContainer {
   fileCacheService: IFileCacheService;
   createSubmissionUseCase: CreateSubmissionUseCase;
   updateSubmissionUseCase: UpdateSubmissionUseCase;
+  generateRandomSchemaUseCase: GenerateRandomSchemaUseCase;
 }
 
 let container: AppContainer | null = null;
 
 /**
- * Composition root. Wire new implementations here as phases land.
- *
- * Phase 8: register GenerateRandomSchema use case
+ * Composition root.
  */
 export function getAppContainer(): AppContainer {
   if (!container) {
@@ -40,11 +40,12 @@ export function getAppContainer(): AppContainer {
     const visibilityEngine = new VisibilityEngine(ruleEvaluator);
     const fileCacheService = new FileCacheServiceImpl();
     const submissionRepository = new LocalSubmissionRepository();
+    const schemaRepository = new InMemorySchemaRepository([
+      sampleBasic,
+      sampleCrossSection,
+    ]);
     container = {
-      schemaRepository: new InMemorySchemaRepository([
-        sampleBasic,
-        sampleCrossSection,
-      ]),
+      schemaRepository,
       submissionRepository,
       ruleEvaluator,
       visibilityEngine,
@@ -58,6 +59,9 @@ export function getAppContainer(): AppContainer {
       ),
       updateSubmissionUseCase: new UpdateSubmissionUseCase(
         submissionRepository,
+      ),
+      generateRandomSchemaUseCase: new GenerateRandomSchemaUseCase(
+        schemaRepository,
       ),
     };
   }

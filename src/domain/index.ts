@@ -16,3 +16,5 @@ export * from './utils/value-utils';
 export * from './services/submission-result-builder';
 export * from './use-cases/create-submission';
 export * from './use-cases/update-submission';
+export * from './use-cases/generate-random-schema';
+export * from './services/random-schema-generator';
