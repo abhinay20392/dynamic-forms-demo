@@ -3,12 +3,12 @@
 ## Layers
 
 ```
-presentation/     UI, navigation, view-models
-domain/           entities, repository interfaces, service interfaces
-data/             repository implementations, mappers
-infrastructure/   DI container, platform adapters (cache, storage)
-shared/           Result type, errors, constants, guards
-assets/schemas/   bundled JSON form definitions
+presentation/     Screens, form components, hooks
+domain/           Entities, use cases, engines (pure TS)
+data/             Repository implementations, mappers
+infrastructure/   DI container, file cache, document/image pickers
+shared/           Result, errors, constants, guards, utils
+assets/schemas/   Bundled JSON form definitions
 ```
 
 ## Dependency rule
@@ -20,51 +20,64 @@ Dependencies point **inward**:
 - `infrastructure` → `data`, `domain`, `shared`
 - `domain` → `shared` only (no React Native imports)
 
-## Dependency flow (textual)
+## Dependency flow
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  App.tsx / Screens / Components                             │
-└───────────────────────────┬─────────────────────────────────┘
-                            │ uses
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│  getAppContainer()  — infrastructure/di/app-container.ts  │
-└───────────────────────────┬─────────────────────────────────┘
-                            │ provides
-          ┌─────────────────┴─────────────────┐
-          ▼                                   ▼
-┌──────────────────────┐          ┌──────────────────────────┐
-│ ISchemaRepository    │          │ ISubmissionRepository  │
-│ (domain interface)   │          │ (domain interface)     │
-└──────────┬───────────┘          └────────────┬─────────────┘
-           │ implemented by                     │ Phase 6+
-           ▼                                    ▼
-┌──────────────────────┐          ┌──────────────────────────┐
-│ InMemorySchemaRepo   │          │ LocalSubmissionRepo      │
-│ (data)               │          │ (data, future)           │
-└──────────────────────┘          └──────────────────────────┘
-
-Future (Phase 4–5):
-  IFileCacheService → used by file/image pickers
-  Visibility engine uses IRuleEvaluator (registered in container)
+App.tsx / Screens
+       │
+       ▼
+getAppContainer()  ──►  use cases, repositories, engines
+       │
+       ├── ISchemaRepository        → InMemorySchemaRepository
+       ├── ISubmissionRepository    → LocalSubmissionRepository (AsyncStorage)
+       ├── IRuleEvaluator           → RuleEvaluator
+       ├── IVisibilityEngine        → VisibilityEngine
+       ├── IValidationEngine        → ValidationEngine
+       ├── IFileCacheService        → FileCacheServiceImpl
+       ├── CreateSubmissionUseCase
+       ├── UpdateSubmissionUseCase
+       └── GenerateRandomSchemaUseCase
 ```
 
-## Composition root
+## Form runtime pipeline
 
-All concrete bindings are registered in `src/infrastructure/di/app-container.ts`.
-Do not construct repositories inside UI components.
+```
+JSON Schema
+    → DynamicFormView
+        → useFormState (values)
+        → useFormVisibility (show/hide, clear hidden)
+        → useFormValidation (errors, submit gate)
+        → FieldRenderer → field components
+    → Submit
+        → ValidationEngine.validate()
+        → CreateSubmissionUseCase / UpdateSubmissionUseCase
+        → LocalSubmissionRepository
+```
 
-## Phase 1 status
+## Screens
+
+| Screen | Route purpose |
+|--------|----------------|
+| `SchemaListScreen` | Pick form / generate random / view submissions |
+| `DynamicFormScreen` | Create or edit form |
+| `SubmissionListScreen` | All saved submissions |
+| `FormDetailsScreen` | Read-only details + edit entry |
+
+## Module status (complete)
 
 | Component | Status |
 |-----------|--------|
-| Domain entities & interfaces | Done |
-| JSON contract types | Done |
-| Sample schemas | Done |
-| InMemorySchemaRepository | Done |
-| SubmissionRepository (LocalSubmissionRepository) | Done (Phase 6) |
-| Rule evaluator + validation engine | Done (Phase 3) |
-| Visibility engine | Done (Phase 4) |
-| File cache service | Done (Phase 5) |
-| Presentation screens | Phase 2+ |
+| Domain entities & JSON contract | Done |
+| Dynamic renderer (sections + fields) | Done |
+| Rule evaluator | Done |
+| Validation engine | Done |
+| Visibility engine | Done |
+| File cache + pickers | Done |
+| Submission save/update | Done |
+| List / details / edit | Done |
+| Random schema generator | Done |
+| Tests + docs | Done |
+
+## Composition root
+
+All bindings live in `src/infrastructure/di/app-container.ts`. UI must not construct repositories or engines directly except via `getAppContainer()`.

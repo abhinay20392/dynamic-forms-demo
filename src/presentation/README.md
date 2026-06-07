@@ -38,5 +38,6 @@
 - Home screen **Generate random form** button → saves schema and opens it
 - Guardrails: acyclic rule refs, always-visible required basics section
 
-## Upcoming
-- File/image field components (Phase 5)
+## Phase 9 (done)
+- Integration tests: `__tests__/form-flow.integration.test.ts`
+- Docs: `EXTENDING.md`, `CONSTRAINTS.md`, updated `ARCHITECTURE.md`, `JSON_SCHEMA.md`, `README.md`

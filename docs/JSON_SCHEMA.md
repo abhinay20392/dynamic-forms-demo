@@ -130,8 +130,68 @@ Saved submissions (`FormSubmission`) use field ids as keys:
 - `src/assets/schemas/sample-basic.form.json` — static validation, radio/checkbox
 - `src/assets/schemas/sample-cross-section.form.json` — `all` / `any` / `not` across sections, file/image fields
 
+## Authoring tips
+
+### Cross-section intersection (section visibility)
+
+Show a section only when two fields in an earlier section match:
+
+```json
+"visibility": {
+  "all": [
+    { "field": "employmentType", "op": "equals", "value": "self_employed" },
+    { "field": "country", "op": "equals", "value": "IN" }
+  ]
+}
+```
+
+### Union visibility
+
+Show when either condition is true:
+
+```json
+"visibility": {
+  "any": [
+    { "field": "employmentType", "op": "equals", "value": "employed" },
+    {
+      "all": [
+        { "field": "employmentType", "op": "equals", "value": "self_employed" },
+        { "field": "businessName", "op": "isNotEmpty" }
+      ]
+    }
+  ]
+}
+```
+
+### Negation
+
+```json
+"validation": {
+  "not": { "field": "employmentType", "op": "equals", "value": "student" }
+}
+```
+
+### Section-level validation gate
+
+Fails section validation on submit when rule does not pass (section must be visible):
+
+```json
+"validation": {
+  "all": [{ "field": "employmentType", "op": "notEquals", "value": "student" }]
+}
+```
+
+### Best practices
+
+- Keep **field ids unique** globally.
+- Reference only fields in **same or earlier sections** to avoid cycles.
+- Put always-visible required fields in the first section for a guaranteed submit path.
+- Use `hiddenValuePolicy: "clear"` when hidden data should not leak into submissions.
+
 ## Adding a schema
 
 1. Add JSON under `src/assets/schemas/`.
 2. Register in `src/infrastructure/di/app-container.ts` constructor array.
 3. Run app — `assertFormSchema` validates at startup when repository is built.
+
+See also: [EXTENDING.md](EXTENDING.md), [CONSTRAINTS.md](CONSTRAINTS.md).
