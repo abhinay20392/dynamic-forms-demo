@@ -6,16 +6,16 @@ Built with **React Native 0.85**, **TypeScript**, and a fully testable domain la
 
 ## Highlights
 
-| Capability | Details |
-|------------|---------|
-| **JSON-driven UI** | Text, radio, checkbox, file, and image fields across multiple sections |
-| **Validation** | Static + dynamic rules; conditional `required`, pattern, min/max, MIME types |
-| **Visibility** | Cross-section rules with `all` (AND), `any` (OR), `not` |
-| **Attachments** | Document picker + camera/gallery; files copied to app cache |
-| **Submissions** | Save, list, view details, and edit with normalized result JSON |
-| **Demo utility** | One-tap random form generator with safety guardrails |
-| **Architecture** | Domain / data / infrastructure / presentation separation |
-| **Tests** | 44 tests — unit + integration |
+| Capability         | Details                                                                      |
+| ------------------ | ---------------------------------------------------------------------------- |
+| **JSON-driven UI** | Text, radio, checkbox, file, and image fields across multiple sections       |
+| **Validation**     | Static + dynamic rules; conditional `required`, pattern, min/max, MIME types |
+| **Visibility**     | Cross-section rules with `all` (AND), `any` (OR), `not`                      |
+| **Attachments**    | Document picker + camera/gallery; files copied to app cache                  |
+| **Submissions**    | Save, list, view details, and edit with normalized result JSON               |
+| **Demo utility**   | One-tap random form generator with safety guardrails                         |
+| **Architecture**   | Domain / data / infrastructure / presentation separation                     |
+| **Tests**          | 44 tests — unit + integration                                                |
 
 ## Tech stack
 
@@ -79,33 +79,32 @@ __tests__/               17 test suites (44 tests)
 
 ## Screens
 
-| Screen | Purpose |
-|--------|---------|
-| `SchemaListScreen` | Pick a form, generate random schema, open submissions |
-| `DynamicFormScreen` | Create or edit a form (schema-driven) |
-| `SubmissionListScreen` | All locally saved submissions |
-| `FormDetailsScreen` | Sectioned read-only view, full JSON, edit entry |
+| Screen                 | Purpose                                               |
+| ---------------------- | ----------------------------------------------------- |
+| `SchemaListScreen`     | Pick a form, generate random schema, open submissions |
+| `DynamicFormScreen`    | Create or edit a form (schema-driven)                 |
+| `SubmissionListScreen` | All locally saved submissions                         |
+| `FormDetailsScreen`    | Sectioned read-only view, full JSON, edit entry       |
 
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers, dependency flow, runtime pipeline |
-| [JSON_SCHEMA.md](docs/JSON_SCHEMA.md) | Form JSON contract, rules, examples |
-| [EXTENDING.md](docs/EXTENDING.md) | Add field types, validation rules, use cases |
-| [CONSTRAINTS.md](docs/CONSTRAINTS.md) | Assumptions, platform notes, limitations |
-| [DYNAMIC_FORMS_PHASE_PLAN.md](DYNAMIC_FORMS_PHASE_PLAN.md) | 9-phase development history |
-| [LINKEDIN_POST.md](docs/LINKEDIN_POST.md) | Shareable project announcement |
+| Document                                                   | Description                                  |
+| ---------------------------------------------------------- | -------------------------------------------- |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md)                    | Layers, dependency flow, runtime pipeline    |
+| [JSON_SCHEMA.md](docs/JSON_SCHEMA.md)                      | Form JSON contract, rules, examples          |
+| [EXTENDING.md](docs/EXTENDING.md)                          | Add field types, validation rules, use cases |
+| [CONSTRAINTS.md](docs/CONSTRAINTS.md)                      | Assumptions, platform notes, limitations     |
+| [DYNAMIC_FORMS_PHASE_PLAN.md](DYNAMIC_FORMS_PHASE_PLAN.md) | 9-phase development history                  |
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm start` | Start Metro bundler |
-| `npm run android` | Run on Android |
-| `npm run ios` | Run on iOS |
-| `npm test` | Run all Jest tests |
-| `npm run lint` | ESLint |
+| Command           | Description         |
+| ----------------- | ------------------- |
+| `npm start`       | Start Metro bundler |
+| `npm run android` | Run on Android      |
+| `npm run ios`     | Run on iOS          |
+| `npm test`        | Run all Jest tests  |
+| `npm run lint`    | ESLint              |
 
 ## Tests
 
@@ -123,9 +122,9 @@ Coverage includes:
 
 ## Sample JSON schemas
 
-| File | Demonstrates |
-|------|----------------|
-| `src/assets/schemas/sample-basic.form.json` | Multi-section form, static validation, radio/checkbox |
+| File                                                | Demonstrates                                             |
+| --------------------------------------------------- | -------------------------------------------------------- |
+| `src/assets/schemas/sample-basic.form.json`         | Multi-section form, static validation, radio/checkbox    |
 | `src/assets/schemas/sample-cross-section.form.json` | Cross-section visibility, dynamic validation, file/image |
 
 ## Submission JSON shape
