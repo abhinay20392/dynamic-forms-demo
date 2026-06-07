@@ -22,7 +22,7 @@ Version: **1.0.0** (see `FORM_SCHEMA_VERSION` in `src/shared/constants/form.ts`)
 | `order` | number | yes | Sort key (ascending) |
 | `description` | string | no | Optional helper text |
 | `visibility` | `RuleGroup` | no | Section visible when rule passes |
-| `validation` | `RuleGroup` | no | Section-level gate (Phase 3+) |
+| `validation` | `RuleGroup` | no | Section-level gate on submit |
 | `fields` | `FieldSchema[]` | yes | Fields in this section |
 
 ## Field types
@@ -113,7 +113,7 @@ Saved submissions (`FormSubmission`) use field ids as keys:
     "fullName": "Jane Doe",
     "interests": ["sports", "tech"],
     "resumeFile": {
-      "cachedPath": "/cache/forms/abc.pdf",
+      "cachedPath": "/.../Cache/dynamic-forms/1234567890-resume.pdf",
       "originalName": "resume.pdf",
       "mimeType": "application/pdf",
       "sizeBytes": 102400,

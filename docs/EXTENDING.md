@@ -1,5 +1,7 @@
 # Extending the Dynamic Forms Demo
 
+Guide for contributors extending the completed demo (Phases 1–9).
+
 ## Add a new field type
 
 ### 1. Domain contract
@@ -94,3 +96,11 @@ Update `assertFormSchema()` if the type needs extra properties validated at load
 | Form state | `src/presentation/forms/hooks/` |
 | Field UI | `src/presentation/components/forms/` |
 | DI wiring | `src/infrastructure/di/app-container.ts` |
+| Screens | `src/presentation/screens/` |
+| Random schemas | `src/domain/services/random-schema-generator.ts` |
+
+## Related docs
+
+- [JSON_SCHEMA.md](JSON_SCHEMA.md) — contract reference
+- [CONSTRAINTS.md](CONSTRAINTS.md) — what not to assume
+- [ARCHITECTURE.md](ARCHITECTURE.md) — layer overview
